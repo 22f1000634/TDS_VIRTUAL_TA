@@ -49,9 +49,7 @@ app = FastAPI(title="RAG Query API", description="API for querying the RAG knowl
 
 
 
-@app.get("/")
-def read_root():
-    return {"message": "API is running!"}
+
 
 @app.get("/")
 async def serve_index():
