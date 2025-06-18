@@ -51,7 +51,7 @@ app = FastAPI(title="RAG Query API", description="API for querying the RAG knowl
 
 
 
-@app.get("/")
+@app.get("/query")
 async def serve_index():
     return FileResponse("index.html")
 
