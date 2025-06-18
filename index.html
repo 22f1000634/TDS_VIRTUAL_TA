@@ -1,92 +1,604 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TDS Virtual TA</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 30px;
-      max-width: 700px;
-      margin: auto;
-    }
-    textarea {
-      width: 100%;
-      height: 100px;
-      font-size: 16px;
-      padding: 10px;
-    }
-    button {
-      padding: 10px 20px;
-      font-size: 16px;
-      margin-top: 10px;
-    }
-    #answer {
-      margin-top: 30px;
-      padding: 20px;
-      background-color: #f3f3f3;
-      border-left: 4px solid #007BFF;
-      display: none;
-    }
-    ul {
-      padding-left: 20px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TDS Virtual TA</title>
+    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --secondary-color: #10b981;
+            --bg-color: #f8fafc;
+            --card-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .chat-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            height: 85vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, var(--primary-color), #7c3aed);
+            color: white;
+            padding: 25px;
+            text-align: center;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .chat-header h1 {
+            margin: 0 0 8px 0;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .chat-header p {
+            margin: 0;
+            opacity: 0.9;
+            font-size: 16px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+            background: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .message {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            animation: fadeInUp 0.3s ease-out;
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: white;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .message.user .message-avatar {
+            background: var(--primary-color);
+        }
+
+        .message.bot .message-avatar {
+            background: var(--secondary-color);
+        }
+
+        .message-content {
+            max-width: 75%;
+            padding: 18px 22px;
+            border-radius: 20px;
+            line-height: 1.6;
+            word-wrap: break-word;
+        }
+
+        .message.user .message-content {
+            background: var(--primary-color);
+            color: white;
+            border-bottom-right-radius: 8px;
+        }
+
+        .message.bot .message-content {
+            background: white;
+            color: #374151;
+            border: 1px solid #e5e7eb;
+            border-bottom-left-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .message-image {
+            max-width: 250px;
+            border-radius: 12px;
+            margin-top: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .sources-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .sources-title {
+            color: #6b7280;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .source-link {
+            display: block;
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 13px;
+            margin-bottom: 10px;
+            padding: 10px 14px;
+            background: #f3f4f6;
+            border-radius: 10px;
+            transition: all 0.2s ease;
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .source-link:hover {
+            background: #e5e7eb;
+            transform: translateX(2px);
+        }
+
+        .chat-input-area {
+            padding: 25px;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .input-container {
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+        }
+
+        .input-group {
+            flex: 1;
+            position: relative;
+        }
+
+        .chat-input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 25px;
+            font-size: 16px;
+            resize: none;
+            outline: none;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            min-height: 50px;
+            max-height: 120px;
+        }
+
+        .chat-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .file-upload-section {
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-input-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background: #f3f4f6;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #6b7280;
+            transition: all 0.2s ease;
+            border: 1px solid #e5e7eb;
+        }
+
+        .file-input-label:hover {
+            background: #e5e7eb;
+            transform: translateY(-1px);
+        }
+
+        .image-preview {
+            max-width: 120px;
+            max-height: 120px;
+            border-radius: 10px;
+            object-fit: cover;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .send-button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 55px;
+            height: 55px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 20px;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        }
+
+        .send-button:hover:not(:disabled) {
+            background: #4338ca;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(79, 70, 229, 0.4);
+        }
+
+        .send-button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .typing-indicator {
+            display: none;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .typing-text {
+            color: #6b7280;
+            font-style: italic;
+            font-size: 14px;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #6b7280;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes typing {
+            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .welcome-message {
+            text-align: center;
+            color: #6b7280;
+            font-style: italic;
+            margin: 40px 0;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .chat-container {
+                height: 95vh;
+                border-radius: 15px;
+            }
+            
+            .chat-header {
+                padding: 20px;
+                border-radius: 15px 15px 0 0;
+            }
+            
+            .chat-header h1 {
+                font-size: 24px;
+            }
+            
+            .chat-messages {
+                padding: 20px 15px;
+            }
+            
+            .message-content {
+                max-width: 85%;
+                padding: 15px 18px;
+            }
+            
+            .chat-input-area {
+                padding: 20px 15px;
+            }
+        }
+
+        /* Scrollbar Styling */
+        .chat-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 10px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+    </style>
 </head>
 <body>
+    <div class="chat-container">
+        <!-- Header -->
+        <div class="chat-header">
+            <h1>TDS Virtual TA</h1>
+            <p>Ask questions and optionally attach an image for context</p>
+        </div>
 
-  <h2>TDS Virtual TA</h2>
-  <p>Ask your question below and get answers with sources:</p>
+        <!-- Messages Area -->
+        <div class="chat-messages" id="chatMessages">
+            <div class="welcome-message">
+                👋 Hello! I'm your TDS Virtual Teaching Assistant.<br>
+                Feel free to ask me anything about your coursework!
+            </div>
+        </div>
 
-  <textarea id="question" placeholder="Type your question here..."></textarea><br>
-  <button onclick="askQuestion()">Ask</button>
-  <div id="answer">
-  <div id="answer">
-    <h3>Answer:</h3>
-    <p id="answerText"></p>
-    <h4>Sources:</h4>
-    <ul id="sourcesList"></ul>
-  </div>
+        <!-- Typing Indicator -->
+        <div class="typing-indicator" id="typingIndicator">
+            <div class="message">
+                <div class="message-avatar" style="background: var(--secondary-color);">TA</div>
+                <div class="typing-text">TA is thinking</div>
+                <div class="typing-dots">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            </div>
+        </div>
 
-  <script>
-    async function askQuestion() {
-      const question = document.getElementById('question').value.trim();
-      if (!question) {
-        alert("Please enter a question.");
-        return;
-      }
+        <!-- Input Area -->
+        <div class="chat-input-area">
+            <div class="input-container">
+                <div class="input-group">
+                    <textarea 
+                        class="chat-input" 
+                        id="questionInput" 
+                        placeholder="Type your question here..." 
+                        rows="1"
+                    ></textarea>
+                    <div class="file-upload-section">
+                        <div class="file-input-wrapper">
+                            <input type="file" id="imageUpload" class="file-input" accept="image/*">
+                            <label for="imageUpload" class="file-input-label">
+                                📎 Attach Image
+                            </label>
+                        </div>
+                        <img id="imagePreview" class="image-preview" style="display: none;" alt="Preview">
+                    </div>
+                </div>
+                <button class="send-button" id="sendButton" onclick="askQuestion()">
+                    ➤
+                </button>
+            </div>
+        </div>
+    </div>
 
-      const response = await fetch("https://tds-virtual-ta-0etl.onrender.com/query", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ question: question })
-      });
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-      const data = await response.json();
+    <script>
+        let base64Image = null;
+        const chatMessages = document.getElementById('chatMessages');
+        const questionInput = document.getElementById('questionInput');
+        const imageUpload = document.getElementById('imageUpload');
+        const imagePreview = document.getElementById('imagePreview');
+        const sendButton = document.getElementById('sendButton');
+        const typingIndicator = document.getElementById('typingIndicator');
 
-      const answerDiv = document.getElementById('answer');
-      const answerText = document.getElementById('answerText');
-      const sourcesList = document.getElementById('sourcesList');
-
-      if (response.ok) {
-        answerText.innerText = data.answer || "No answer found.";
-        sourcesList.innerHTML = "";
-        (data.links || []).forEach(link => {
-          const li = document.createElement("li");
-          li.innerHTML = `<a href="${link.url}" target="_blank">${link.url}</a> — ${link.text}`;
-          sourcesList.appendChild(li);
+        // Auto-resize textarea
+        questionInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
         });
-        answerDiv.style.display = "block";
-      } else {
-        answerText.innerText = "Error: " + (data.error || "Unknown error");
-        sourcesList.innerHTML = "";
-        answerDiv.style.display = "block";
-      }
-    }
-  </script>
 
+        // Handle Enter key (send message) and Shift+Enter (new line)
+        questionInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                askQuestion();
+            }
+        });
+
+        // Handle image preview
+        imageUpload.addEventListener('change', function() {
+            previewImage();
+        });
+
+        function previewImage() {
+            const file = imageUpload.files[0];
+            
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    base64Image = e.target.result.split(',')[1];
+                    imagePreview.src = e.target.result;
+                    imagePreview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                base64Image = null;
+                imagePreview.style.display = 'none';
+            }
+        }
+
+        function addMessage(type, content, links = [], imageData = null) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.textContent = type === 'user' ? 'U' : 'TA';
+            
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            
+            // Add text content
+            const textContent = document.createElement('div');
+            textContent.textContent = content;
+            messageContent.appendChild(textContent);
+            
+            // Add image if present (for user messages)
+            if (imageData && type === 'user') {
+                const img = document.createElement('img');
+                img.src = `data:image/jpeg;base64,${imageData}`;
+                img.className = 'message-image';
+                messageContent.appendChild(img);
+            }
+            
+            // Add sources if present (for bot messages)
+            if (links && links.length > 0) {
+                const sourcesDiv = document.createElement('div');
+                sourcesDiv.className = 'sources-section';
+                
+                const sourcesTitle = document.createElement('div');
+                sourcesTitle.className = 'sources-title';
+                sourcesTitle.textContent = 'Sources:';
+                sourcesDiv.appendChild(sourcesTitle);
+                
+                links.forEach(link => {
+                    const linkElement = document.createElement('a');
+                    linkElement.href = link.url;
+                    linkElement.target = '_blank';
+                    linkElement.className = 'source-link';
+                    linkElement.innerHTML = `
+                        <strong>${link.url}</strong><br>
+                        <small>${link.text}</small>
+                    `;
+                    sourcesDiv.appendChild(linkElement);
+                });
+                
+                messageContent.appendChild(sourcesDiv);
+            }
+            
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(messageContent);
+            
+            // Remove welcome message if it exists
+            const welcomeMessage = chatMessages.querySelector('.welcome-message');
+            if (welcomeMessage) {
+                welcomeMessage.remove();
+            }
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function showTypingIndicator() {
+            typingIndicator.style.display = 'block';
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function hideTypingIndicator() {
+            typingIndicator.style.display = 'none';
+        }
+
+        async function askQuestion() {
+            const question = questionInput.value.trim();
+            
+            if (!question) {
+                alert("Please enter a question.");
+                return;
+            }
+
+            // Add user message
+            addMessage('user', question, [], base64Image);
+            
+            // Clear input and reset
+            questionInput.value = '';
+            questionInput.style.height = 'auto';
+            
+            // Show typing indicator
+            showTypingIndicator();
+            sendButton.disabled = true;
+
+            try {
+                const response = await fetch("http://127.0.0.1:8000/query", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        question: question,
+                        image: base64Image || null
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    addMessage('bot', data.answer || "No answer found.", data.links || []);
+                } else {
+                    addMessage('bot', `Error: ${data.error || "Unknown error"}`);
+                }
+
+            } catch (err) {
+                console.error("Request failed:", err);
+                addMessage('bot', "Sorry, I encountered a network error. Please make sure the backend is running and try again.");
+            } finally {
+                // Hide typing indicator and re-enable send button
+                hideTypingIndicator();
+                sendButton.disabled = false;
+                
+                // Clear image
+                imageUpload.value = '';
+                imagePreview.style.display = 'none';
+                base64Image = null;
+            }
+        }
+    </script>
 </body>
 </html>
