@@ -16,6 +16,8 @@ from fastapi.responses import JSONResponse
 import uvicorn
 import traceback
 from dotenv import load_dotenv
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -50,6 +52,10 @@ app = FastAPI(title="RAG Query API", description="API for querying the RAG knowl
 @app.get("/")
 def read_root():
     return {"message": "API is running!"}
+
+@app.get("/")
+async def serve_index():
+    return FileResponse("index.html")
 
 # Add CORS middleware
 app.add_middleware(
